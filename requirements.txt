@@ -1,2 +1,4 @@
+autokeras
+scikit-learn
 numpy
 scipy
