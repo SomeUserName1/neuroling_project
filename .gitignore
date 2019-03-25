@@ -1,3 +1,5 @@
 .idea
 *.csv
 data
+_pycache__/
+*.py[cod]
