@@ -2,7 +2,7 @@ from bisect import bisect_left, bisect_right
 
 import torch
 from autokeras.supervised import DeepTaskSupervised, PortableDeepSupervised
-from autokeras.nn.loss_function import classification_loss
+from autokeras.nn.loss_function import classification_loss, regression_loss
 from autokeras.nn.metric import Accuracy, MSE
 from autokeras.preprocessor import OneHotEncoder, DataTransformer, MultiTransformDataset, DataTransformerMlp
 from autokeras.utils import pickle_to_file
@@ -35,10 +35,10 @@ class EEGLangComprehension(DeepTaskSupervised):
 
     @property
     def loss(self):
-        return classification_loss
+        return regression_loss
 
     def get_n_output_node(self):
-        return 6
+        return 1
 
     def init_transformer(self, x):
         if self.data_transformer is None:
@@ -68,7 +68,10 @@ class EEGLangComprehension(DeepTaskSupervised):
         #    self.y_encoder = OneHotEncoder()
         #    self.y_encoder.fit(y_train)
         #y_train = self.y_encoder.transform(y_train)
-        return y_train
+        return y_train.flatten().reshape(len(y_train), 1)
+
+    def inverse_transform_y(self, output):
+        return output.flatten()
 
     def export_autokeras_model(self, model_file_name):
         """ Creates and Exports the AutoKeras model to the given filename. """
@@ -89,7 +92,9 @@ class V1Transformer(DataTransformer):
         self.std = np.std(data, axis=0)
 
     def transform_train(self, data, targets=None, batch_size=None):
-        data = torch.from_numpy((data - self.mean) / self.std)
+        data = (data - self.mean) / self.std
+
+        data = torch.Tensor(data)
 
         if batch_size is None:
             batch_size = Constant.MAX_BATCH_SIZE

@@ -64,10 +64,6 @@ def main(data_path):
 
         data = preprocessed_x
 
-        arg = [0, len(data.shape) - 1] + list(range(1, len(data.shape) - 1))
-        data = torch.Tensor(data.transpose(*arg))
-        print(data.size())
-
         start = time.time()
         classifier_i.fit(preprocessed_x, scores, time_limit=3 * 60)
         end = time.time()
