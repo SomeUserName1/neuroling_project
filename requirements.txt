@@ -1,3 +1,4 @@
+torch
 autokeras
 scikit-learn
 numpy

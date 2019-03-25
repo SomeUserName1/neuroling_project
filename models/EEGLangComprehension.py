@@ -1,11 +1,15 @@
 from bisect import bisect_left, bisect_right
 
+import torch
 from autokeras.supervised import DeepTaskSupervised, PortableDeepSupervised
 from autokeras.nn.loss_function import classification_loss
 from autokeras.nn.metric import Accuracy, MSE
-from autokeras.preprocessor import OneHotEncoder, DataTransformer
+from autokeras.preprocessor import OneHotEncoder, DataTransformer, MultiTransformDataset, DataTransformerMlp
 from autokeras.utils import pickle_to_file
+from autokeras.constant import Constant
 import numpy as np
+from torch.utils.data import DataLoader
+from torchvision.transforms import Compose
 
 
 class EEGLangComprehension(DeepTaskSupervised):
@@ -27,7 +31,7 @@ class EEGLangComprehension(DeepTaskSupervised):
 
     @property
     def metric(self):
-        return Accuracy
+        return MSE
 
     @property
     def loss(self):
@@ -37,7 +41,8 @@ class EEGLangComprehension(DeepTaskSupervised):
         return 6
 
     def init_transformer(self, x):
-        pass
+        if self.data_transformer is None:
+            self.data_transformer = DataTransformerMlp(x)
 
     def preprocess(self, x):
         preprocessed_x = []
@@ -59,10 +64,10 @@ class EEGLangComprehension(DeepTaskSupervised):
         return [range(idx_lower, idx_upper + 1)]
 
     def transform_y(self, y_train):
-        if self.y_encoder is None:
-            self.y_encoder = OneHotEncoder()
-            self.y_encoder.fit(y_train)
-        y_train = self.y_encoder.transform(y_train)
+        #if self.y_encoder is None:
+        #    self.y_encoder = OneHotEncoder()
+        #    self.y_encoder.fit(y_train)
+        #y_train = self.y_encoder.transform(y_train)
         return y_train
 
     def export_autokeras_model(self, model_file_name):
@@ -78,9 +83,19 @@ class V1Transformer(DataTransformer):
     """
     Do Standardisation/z scoring for the x values
     """
+    def __init__(self, data):
+        super().__init__()
+        self.mean = np.mean(data, axis=0)
+        self.std = np.std(data, axis=0)
 
     def transform_train(self, data, targets=None, batch_size=None):
-        pass
+        data = torch.from_numpy((data - self.mean) / self.std)
+
+        if batch_size is None:
+            batch_size = Constant.MAX_BATCH_SIZE
+        batch_size = min(len(data), batch_size)
+
+        return DataLoader(MultiTransformDataset(data, targets, Compose([])), batch_size=batch_size, shuffle=True)
 
     def transform_test(self, data, targets=None, batch_size=None):
-        pass
+        self.transform_train(data, targets)

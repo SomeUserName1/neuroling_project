@@ -1,4 +1,5 @@
 import scipy.io as sio
+import torch
 from sklearn.model_selection import KFold
 from sklearn.metrics import confusion_matrix, classification_report
 
@@ -52,23 +53,28 @@ def main(data_path):
     start = time.time()
     spectra, scores, frequencies = parse_mat_files(data_path, False)
     end = time.time()
-    print(end - start)
+    print("Importing data from mat files finished! Took %.3f s" % (end - start))
 
     for i in [5, 10]:
-        classifier_i = EEGLangComprehension.EEGLangComprehension(frequencies, i)
+        classifier_i = EEGLangComprehension.EEGLangComprehension(frequencies, i, verbose=True)
         start = time.time()
         preprocessed_x = classifier_i.preprocess(spectra)
         end = time.time()
-        print(end - start)
+        print("Pre-processing finished! Took %.3f s" % (end - start))
 
-        print(preprocessed_x.shape[0])
-        print(scores.shape[0])
+        data = preprocessed_x
+
+        arg = [0, len(data.shape) - 1] + list(range(1, len(data.shape) - 1))
+        data = torch.Tensor(data.transpose(*arg))
+        print(data.size())
+
         start = time.time()
-        classifier_i.fit(preprocessed_x, scores, time_limit=1 * 60 * 60)
+        classifier_i.fit(preprocessed_x, scores, time_limit=3 * 60)
         end = time.time()
-        print(end - start)
-        #kf = KFold(n_splits=2)
-        #for train_index, test_index in kf.split(preprocessed_x):
+        print("Model search finished! Took %.3f s" % (end - start))
+
+        # kf = KFold(n_splits=2)
+        # for train_index, test_index in kf.split(preprocessed_x):
         #    train_x, test_x = preprocessed_x[train_index], preprocessed_x[test_index]
         #    train_y, test_y = preprocessed_y[train_index], preprocessed_y[test_index]
         #    classifier_i.final_fit(train_x, train_y, test_x, test_y)
@@ -83,7 +89,8 @@ if __name__ == "__main__":
 
     # TODO final interface
     parser.add_argument("--data_path",
-                        default='C:\\Users\\Fabi\\ownCloud\\workspace\\uni\\7\\neuroling\\neuroling_project\\data\\v1',
+                        # default='C:\\Users\\Fabi\\ownCloud\\workspace\\uni\\7\\neuroling\\neuroling_project\\data\\v1',
+                        default='data/v1',
                         type=str)
 
     args = parser.parse_args()
