@@ -3,7 +3,7 @@ import torch
 from sklearn.model_selection import KFold
 from sklearn.metrics import confusion_matrix, classification_report
 
-from models import EEGLangComprehension
+from models import EEGLangComprehensionNAS
 import argparse
 import os
 import numpy as np
@@ -56,28 +56,23 @@ def main(data_path):
     print("Importing data from mat files finished! Took %.3f s" % (end - start))
 
     for i in [5, 10]:
-        classifier_i = EEGLangComprehension.EEGLangComprehension(frequencies, i, verbose=True)
+        classifier_i = EEGLangComprehensionNAS.EEGLangComprehensionNAS(False, frequencies, i)  # , verbose=True)
         start = time.time()
         preprocessed_x = classifier_i.preprocess(spectra)
         end = time.time()
         print("Pre-processing finished! Took %.3f s" % (end - start))
 
-        data = preprocessed_x
-
         start = time.time()
-        classifier_i.fit(preprocessed_x, scores, time_limit=3 * 60)
+        classifier_i.fit(preprocessed_x, scores, time_limit=60 * 60)
         end = time.time()
         print("Model search finished! Took %.3f s" % (end - start))
 
-        # kf = KFold(n_splits=2)
-        # for train_index, test_index in kf.split(preprocessed_x):
-        #    train_x, test_x = preprocessed_x[train_index], preprocessed_x[test_index]
-        #    train_y, test_y = preprocessed_y[train_index], preprocessed_y[test_index]
-        #    classifier_i.final_fit(train_x, train_y, test_x, test_y)
-        #    classifier_i.evaluate(test_x, test_y)
-        #    results = classifier_i.predict(test_x)
-        #    print(confusion_matrix(test_y, results))
-        #    print(classification_report(test_y, results))
+        kf = KFold(n_splits=2)
+        for train_index, test_index in kf.split(spectra):
+            train_x, test_x = spectra[train_index], spectra[test_index]
+            train_y, test_y = scores[train_index], scores[test_index]
+            classifier_i.final_fit(train_x, train_y, test_x, test_y, trainer_args={'max_no_improvement_num': 30}, retrain=True)
+            print(classifier_i.evaluate(test_x, test_y))
 
 
 if __name__ == "__main__":
@@ -85,8 +80,8 @@ if __name__ == "__main__":
 
     # TODO final interface
     parser.add_argument("--data_path",
-                        # default='C:\\Users\\Fabi\\ownCloud\\workspace\\uni\\7\\neuroling\\neuroling_project\\data\\v1',
-                        default='data/v1',
+                        default='C:\\Users\\Fabi\\ownCloud\\workspace\\uni\\7\\neuroling\\neuroling_project\\data\\v1',
+                        # default='data/v1',
                         type=str)
 
     args = parser.parse_args()
