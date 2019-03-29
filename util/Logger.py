@@ -7,24 +7,26 @@ import time
 import numpy as np
 from keras.utils import print_summary, plot_model
 
-# TODO
+from config import MODEL_OUT_DIR, DATA_SET_DIR, BATCH_SIZE, EPOCHS, LEARNING_RATE
+
+
 class Logger(object):
     """
+    Basic keras model logger
     """
 
-    def __init__(self, output_files=[sys.stdout]):
+    def __init__(self, output_files):
         """
-
         Args:
-            output_files:
+            output_files: location to log to
         """
         self.output_files = output_files
 
     def log(self, string):
         """
-
+            log a single string
         Args:
-            string:
+            string: string to log
         """
         for f in self.output_files:
             if f == sys.stdout:
@@ -33,17 +35,9 @@ class Logger(object):
                 with open(f, "a+") as out_file:
                     out_file.write(string + "\n")
 
-    def add_log_file(self, log_file):
-        """
-
-        Args:
-            log_file:
-        """
-        self.output_files.append(log_file)
-
     def log_model(self, models_local_folder, score, model):
         """
-
+        Logs the performance and architecture of a model
         Args:
             models_local_folder:
             score:
@@ -59,14 +53,13 @@ class Logger(object):
         self.log("Parameters")
         self.log("_______________________________________")
         self.log("Batch size    : " + str(BATCH_SIZE))
-        self.log("Batches per Epoch    : " + str(STEPS_PER_EPOCH))
         self.log("Epochs       : " + str(EPOCHS))
         self.log("Learning rate : " + str(LEARNING_RATE))
         self.log("_______________________________________")
         self.log("Loss          : " + str(score[0]))
-        self.log("Accuracy      : " + str(score[1]))
+        self.log("MSE      : " + str(score[1]))
         self.log("=========================================End of Log=================================================")
         self.log("====================================================================================================")
         self.log("----------------------------------------------------------------------------------------------------")
-        plot_model(model, show_shapes=True, to_file=MODEL_OUT_DIR + '/' + models_local_folder + '/' + model_file_name +
-                                                    ".png")
+        plot_model(model, show_shapes=True, to_file=os.sep.join([MODEL_OUT_DIR, models_local_folder, model_file_name +
+                                                                 ".png"]))
