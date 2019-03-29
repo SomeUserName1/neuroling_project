@@ -1,18 +1,20 @@
 import os
 from abc import abstractmethod, ABCMeta
-from bisect import bisect_right, bisect_left
 
 import keras.callbacks as cb
 import numpy as np
+import matplotlib.pyplot as plt
+import pandas as pd
+from keras import optimizers
 from keras.models import model_from_json
+from sklearn.model_selection import KFold, cross_val_score
 
 from util.BaseLogger import Logger
 
-# TODO
 
 class AbstractNet(object, metaclass=ABCMeta):
-    def __init__(self, frequencies, frequency_component, net_type, model_out_dir, learning_rate, batch_size, steps_per_epoch,
-                 epochs):
+    def __init__(self, net_type, model_out_dir, frequency, electrodes, learning_rate=0.0001, batch_size=32,
+                 epochs=30):
         """
         initializes the basic class variables and the non-basic (e.g. different preprocessors) to None
         It is important to set the net type/name in the loffer of the net directly after calling super.init and esp.
@@ -20,25 +22,34 @@ class AbstractNet(object, metaclass=ABCMeta):
         Args:
             learning_rate: the chosen learning rate
             batch_size: the amount of items per batch
-            steps_per_epoch: the amounts of batches per epoch
             epochs: the amount of epochs
 
+
+test_predictions = model.predict(normed_test_data).flatten()
+
+plt.scatter(test_labels, test_predictions)
+plt.xlabel('True Values [MPG]')
+plt.ylabel('Predictions [MPG]')
+plt.axis('equal')
+plt.axis('square')
+plt.xlim([0,plt.xlim()[1]])
+plt.ylim([0,plt.ylim()[1]])
+_ = plt.plot([-100, 100], [-100, 100])
+
         """
+        if frequency is None:
+            self.input_shape = (len(electrodes), 101)
+        else:
+            self.input_shape = (len(electrodes), 5)
         self.net_type = net_type
         self.logger = Logger([os.path.join(model_out_dir, self.net_type, "%s.log" % self.net_type)])
         self.model_out_dir = model_out_dir
-        self.input_shape = (6,5)
-        self.number_of_classes = 1
         self.batch_size = batch_size
         self.learning_rate = learning_rate
-        self.steps_per_epoch = steps_per_epoch
         self.epochs = epochs
 
-        self.lr_decay = 0.99
         self.model = None
-
-        self.frequency_component = frequency_component
-        self.frequencies = frequencies
+        self.history = None
 
         if not os.path.exists(os.path.join(model_out_dir, self.net_type)):
             os.makedirs(os.path.join(model_out_dir, self.net_type))
@@ -53,7 +64,37 @@ class AbstractNet(object, metaclass=ABCMeta):
         keras.models.Model :
             neural network model
         """
-        pass
+        self.model.compile(loss='mean_squared_error',
+                           optimizer=optimizers.RMSprop(self.learning_rate),
+                           metrics=['mean_absolute_error', 'mean_squared_error'])
+        self.model.summary()
+
+    def fit(self, x, y):
+        if self.model is None:
+            self.build()
+        self.history = self.model.fit(x, y, epochs=self.epochs, validation_split=0.25, batch_size=self.batch_size, verbose=True)
+
+
+    def evaluate(self, x, y):
+        """
+
+        Args:
+            x:
+            y:
+        """
+        if self.model is None:
+            self.build()
+            self.fit(x, y)
+
+       # tb = cb.TensorBoard(log_dir=os.sep.join([self.model_out_dir, self.net_type, 'tensorboard-logs']),
+        #                    write_graph=True, write_images=True)
+       # cp = cb.ModelCheckpoint(os.sep.join([self.model_out_dir, self.net_type, 'weights.h5']), save_best_only=True,
+        #                        save_weights_only=False, verbose=1)
+        #es = cb.EarlyStopping(monitor='val_loss', min_delta=0.007, restore_best_weights=True)
+        #cb_list = [cp] #, tb, es]
+
+        print(self.model.evaluate(x, y, batch_size=self.batch_size))# , callbacks=cb_list))
+        self.save_model()
 
     def save_model(self):
         """
@@ -106,20 +147,27 @@ class AbstractNet(object, metaclass=ABCMeta):
         print("loaded model")
         return model
 
-    def preprocess(self, x):
-        if self.frequency_component is not None:
-            if self.frequency_component < 1 or self.frequency_component > 50:
-                raise Exception("Select a frequency between 1 and 50 Hz!")
-            else:
-                return np.squeeze(x[:, :, self.frequency_lookup()])
-        else:
-            return x
+    def plot_history(self):
+        hist = pd.DataFrame(self.history.history)
+        hist['epoch'] = self.history.epoch
 
-    def frequency_lookup(self):
-        lower = self.frequency_component - 1
-        upper = self.frequency_component + 1
+        plt.figure()
+        plt.xlabel('Epoch')
+        plt.ylabel('Mean Abs Error [MPG]')
+        plt.plot(hist['epoch'], hist['mean_absolute_error'],
+                 label='Train Error')
+        plt.plot(hist['epoch'], hist['val_mean_absolute_error'],
+                 label='Val Error')
+        plt.ylim([0, 5])
+        plt.legend()
 
-        idx_lower = bisect_right(self.frequencies, lower)
-        idx_upper = bisect_left(self.frequencies, upper)
-
-        return [range(idx_lower, idx_upper + 1)]
+        plt.figure()
+        plt.xlabel('Epoch')
+        plt.ylabel('Mean Square Error [$MPG^2$]')
+        plt.plot(hist['epoch'], hist['mean_squared_error'],
+                 label='Train Error')
+        plt.plot(hist['epoch'], hist['val_mean_squared_error'],
+                 label='Val Error')
+        plt.ylim([0, 20])
+        plt.legend()
+        plt.show()

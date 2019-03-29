@@ -1,3 +1,6 @@
+matplotlib
+pandas
+keras
 graphviz
 python-graphviz
 torch
