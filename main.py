@@ -2,12 +2,12 @@ import argparse
 import time
 
 from sklearn.model_selection import train_test_split
-
 from config import *
 from models.Handcrafted import MediumConv1DNet, DeepDenseNet, WideDenseNet, SmallDenseNet
 from models.NAS import NAS
 from util import preprocess
 from util.visualize import visualize
+import keras.backend as K
 
 
 def main(data_path, weight_path, verbose, frequency, electrodes, search_time):
@@ -25,21 +25,24 @@ def main(data_path, weight_path, verbose, frequency, electrodes, search_time):
     end = time.time()
     print("Importing data from mat files finished! Took %.3f s" % (end - start))
 
-    for net in [MediumConv1DNet, SmallDenseNet, WideDenseNet, DeepDenseNet]:  # , NAS]:
+    print(preprocess.mean_cov(spectra, scores))
+
+    for net in [SmallDenseNet, MediumConv1DNet, WideDenseNet, DeepDenseNet]:  # , NAS]:
+        K.clear_session()
         train_x, test_x, train_y, test_y = train_test_split(spectra, scores, shuffle=False, train_size=0.90)
 
         if net is not NAS:
-            instance = net(os.path.sep.join([weight_path, frequency]), frequency, electrodes)
+            instance = net(os.path.sep.join([weight_path, str(frequency)]), frequency, electrodes)
             instance.build()
             instance.fit(train_x, train_y)
             instance.evaluate(test_x, test_y)
         else:
-            instance = NAS(verbose=verbose, path=os.path.sep.join([weight_path, i, "NAS"]),
+            instance = NAS(verbose=verbose, path=os.path.sep.join([weight_path, str(frequency), "NAS"]),
                            training_time=search_time)
             instance.fit(spectra, scores, time_limit=search_time)
             instance.final_fit(train_x, train_y, test_x, test_y, trainer_args={'max_no_improvement_num': 30},
                                retrain=False)
-            visualize(os.path.sep.join([weight_path, frequency, "NAS"]))
+            visualize(os.path.sep.join([weight_path, str(frequency), "NAS"]))
             print(instance.evaluate(test_x, test_y))
 
 

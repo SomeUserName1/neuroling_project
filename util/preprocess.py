@@ -72,7 +72,7 @@ def preprocess(path, electrode_list, frequency_component):
 
         # standardize the coherence spectra
         coherence_spectra = (coherence_spectra - np.mean(coherence_spectra)) / np.std(coherence_spectra)
-
+    print(coherence_spectra.shape)
     return coherence_spectra, comprehension_scores
 
 
@@ -97,3 +97,15 @@ def get_electrodes(path):
                 electrodes = np.append(electrodes, label[0])
             all_electrodes.append(electrodes)
     return all_electrodes
+
+
+def mean_cov(spectra, scores):
+    covs = []
+    for idx in range(0, spectra.shape[1]):
+        new_spec = spectra[:, idx, 2]
+
+        stack = np.vstack((new_spec,scores))
+        covs.append(np.cov(stack))
+    covs = np.array(covs)
+
+    return np.mean(covs, axis=0)

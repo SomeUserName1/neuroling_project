@@ -1,3 +1,4 @@
+pydot
 torchvision
 matplotlib
 pandas
@@ -9,3 +10,4 @@ autokeras
 scikit-learn
 numpy
 scipy
+tensorflow-gpu

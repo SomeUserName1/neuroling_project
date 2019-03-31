@@ -2,14 +2,14 @@ import os
 from abc import abstractmethod, ABCMeta
 
 import numpy as np
-from keras import optimizers
+from keras import optimizers, callbacks
 from keras.models import model_from_json
 
 from util.Logger import Logger
 
 
 class AbstractNet(object, metaclass=ABCMeta):
-    def __init__(self, net_type, model_out_dir, frequency, electrodes, learning_rate=0.0001, batch_size=32,
+    def __init__(self, net_type, model_out_dir, frequency, electrodes, learning_rate=0.002, batch_size=32,
                  epochs=30):
         """
         initializes the basic class variables
@@ -22,6 +22,7 @@ class AbstractNet(object, metaclass=ABCMeta):
             self.input_shape = (len(electrodes), 101)
         else:
             self.input_shape = (len(electrodes), 5)
+        self.frequency = frequency
         self.net_type = net_type
         self.model_out_dir = model_out_dir
         self.batch_size = batch_size
@@ -31,7 +32,7 @@ class AbstractNet(object, metaclass=ABCMeta):
         self.model = None
         self.history = None
 
-        self.logger = Logger([os.path.join(model_out_dir, self.net_type, "%s.log" % self.net_type)])
+        self.logger = Logger(model_out_dir, self.net_type)
 
         if not os.path.exists(os.path.join(model_out_dir, self.net_type)):
             os.makedirs(os.path.join(model_out_dir, self.net_type))
@@ -44,16 +45,28 @@ class AbstractNet(object, metaclass=ABCMeta):
         Returns:
             neural network model
         """
+        optimizer = optimizers.Nadam(lr=self.learning_rate)
+
         self.model.compile(loss='mean_squared_error',
-                           optimizer=optimizers.RMSprop(self.learning_rate),
+                           optimizer=optimizer,
                            metrics=['mean_absolute_error', 'mean_squared_error'])
         self.model.summary()
 
     def fit(self, x, y):
         if self.model is None:
             self.build()
+
+        tb = callbacks.TensorBoard(log_dir=os.sep.join([self.model_out_dir, self.net_type, 'tensorboard-logs']),
+                                   write_graph=True, write_images=True, histogram_freq=10, batch_size=32, write_grads=1,
+                                   update_freq='batch')
+        cp = callbacks.ModelCheckpoint(os.sep.join([self.model_out_dir, self.net_type, 'weights.h5']),
+                                       save_best_only=True, verbose=1, period=5)
+        es = callbacks.EarlyStopping(monitor='val_loss', min_delta=0.0000001, patience=30, restore_best_weights=True,
+                                     verbose=1)
+        cb_list = [cp, tb, es]
+
         self.history = self.model.fit(x, y, epochs=self.epochs, validation_split=0.25, batch_size=self.batch_size,
-                                      verbose=True)
+                                      verbose=True, callbacks=cb_list)
 
     def evaluate(self, x, y):
         """
@@ -65,17 +78,10 @@ class AbstractNet(object, metaclass=ABCMeta):
         if self.model is None:
             self.build()
             self.fit(x, y)
-        # TODO get them running
-        # tb = cb.TensorBoard(log_dir=os.sep.join([self.model_out_dir, self.net_type, 'tensorboard-logs']),
-        #                    write_graph=True, write_images=True)
-        # cp = cb.ModelCheckpoint(os.sep.join([self.model_out_dir, self.net_type, 'weights.h5']), save_best_only=True,
-        #                        save_weights_only=False, verbose=1)
-        # es = cb.EarlyStopping(monitor='val_loss', min_delta=0.007, restore_best_weights=True)
-        # cb_list = [cp] #, tb, es]
 
-        score = self.model.evaluate(x, y, batch_size=self.batch_size)  # , callbacks=cb_list))
-        self.logger.log_model(self.net_type, score, self.model)
+        score = self.model.evaluate(x, y, batch_size=self.batch_size)
         self.save_model()
+        self.logger.log_model(score, self.model)
 
     def save_model(self):
         """
