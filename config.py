@@ -24,7 +24,7 @@ FREQUENCY = 10
 
 # Training & Testing Setup
 VERBOSE = True
-SEARCH_TIME = 10 * 60  # in s
+SEARCH_TIME = 30 * 60  # in s
 LEARNING_RATE = 2e-2
 BATCH_SIZE = 64  # Batch sized used for training.
 EPOCHS = 100

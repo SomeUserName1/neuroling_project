@@ -39,7 +39,7 @@ def visualize(path):
         to_pdf(graph, os.path.join(path, str(model_id)))
 
 
-def plot_history(history):
+def plot_history(out_dir, history):
     """
         Plots the training loss and metrics of a trained classifier suring training
     Args:
@@ -50,7 +50,7 @@ def plot_history(history):
 
     plt.figure()
     plt.xlabel('Epoch')
-    plt.ylabel('Mean Abs Error [MPG]')
+    plt.ylabel('Mean Abs Error ')
     plt.plot(hist['epoch'], hist['mean_absolute_error'],
              label='Train Error')
     plt.plot(hist['epoch'], hist['val_mean_absolute_error'],
@@ -60,17 +60,17 @@ def plot_history(history):
 
     plt.figure()
     plt.xlabel('Epoch')
-    plt.ylabel('Mean Square Error [$MPG^2$]')
+    plt.ylabel('Mean Square Error ')
     plt.plot(hist['epoch'], hist['mean_squared_error'],
              label='Train Error')
     plt.plot(hist['epoch'], hist['val_mean_squared_error'],
              label='Val Error')
     plt.ylim([0, 20])
     plt.legend()
-    plt.show()
+    plt.savefig(out_dir)
 
 
-def plot_predictions(test_labels, test_predictions):
+def plot_predictions(test_labels, test_predictions, out_dir):
     """
     plots the predictions and true labels
     Args:
@@ -79,10 +79,11 @@ def plot_predictions(test_labels, test_predictions):
     """
 
     plt.scatter(test_labels, test_predictions)
-    plt.xlabel('True Values [MPG]')
-    plt.ylabel('Predictions [MPG]')
+    plt.xlabel('True Values')
+    plt.ylabel('Predictions')
     plt.axis('equal')
     plt.axis('square')
     plt.xlim([0, plt.xlim()[1]])
     plt.ylim([0, plt.ylim()[1]])
-    _ = plt.plot([-100, 100], [-100, 100])
+    plt.plot([-1, 2], [-1, 2])
+    plt.savefig(out_dir)

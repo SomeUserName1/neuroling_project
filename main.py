@@ -25,9 +25,10 @@ def main(data_path, weight_path, verbose, frequency, electrodes, search_time):
     end = time.time()
     print("Importing data from mat files finished! Took %.3f s" % (end - start))
 
+    print("Mean Covariance between per Electrode-Audio Frequency Domain Coherence and Comprehension Score")
     print(preprocess.mean_cov(spectra, scores))
 
-    for net in [SmallDenseNet, MediumConv1DNet, WideDenseNet, DeepDenseNet]:  # , NAS]:
+    for net in [SmallDenseNet, MediumConv1DNet, WideDenseNet, DeepDenseNet, NAS]:
         K.clear_session()
         train_x, test_x, train_y, test_y = train_test_split(spectra, scores, shuffle=False, train_size=0.90)
 

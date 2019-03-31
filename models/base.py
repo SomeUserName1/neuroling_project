@@ -61,7 +61,7 @@ class AbstractNet(object, metaclass=ABCMeta):
                                    update_freq='batch')
         cp = callbacks.ModelCheckpoint(os.sep.join([self.model_out_dir, self.net_type, 'weights.h5']),
                                        save_best_only=True, verbose=1, period=5)
-        es = callbacks.EarlyStopping(monitor='val_loss', min_delta=0.0000001, patience=30, restore_best_weights=True,
+        es = callbacks.EarlyStopping(monitor='val_loss', min_delta=0.0000001, patience=20, restore_best_weights=True,
                                      verbose=1)
         cb_list = [cp, tb, es]
 
@@ -80,8 +80,9 @@ class AbstractNet(object, metaclass=ABCMeta):
             self.fit(x, y)
 
         score = self.model.evaluate(x, y, batch_size=self.batch_size)
+        predicitons = self.model.predict(x)
         self.save_model()
-        self.logger.log_model(score, self.model)
+        self.logger.log_model(score, self.model, self.history, y, predicitons)
 
     def save_model(self):
         """
@@ -101,8 +102,6 @@ class AbstractNet(object, metaclass=ABCMeta):
             model_number = np.fromfile(os.path.join(out_dir, "model_number.txt"),
                                        dtype=int)
         model_file_name = self.net_type + "-" + str(model_number[0])
-        with open(os.path.join(self.model_out_dir, self.net_type, model_file_name + ".json"), "a+") as jfile:
-            jfile.write(self.model.to_json())
         self.model.save_weights(os.path.join(out_dir, model_file_name + ".h5"))
         model_number[0] += 1
         model_number.tofile(os.path.join(out_dir, "model_number.txt"))

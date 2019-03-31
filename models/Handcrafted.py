@@ -24,9 +24,10 @@ class MediumConv1DNet(AbstractNet):
         a = Input(self.input_shape)
         x = Conv1D(self.input_shape[1], self.input_shape[0], activation='relu', name='0c0')(a)
         x = Flatten()(x)
-        x = Dense(32, activation='relu', kernel_initializer='glorot_normal', bias_initializer='zeros', name='0fc0')(x)
-        x = Dense(5, activation='relu', kernel_initializer='glorot_normal', bias_initializer='zeros', name='0fc1')(x)
-        b = Dense(1, activation='relu', kernel_initializer='glorot_normal', bias_initializer='zeros', name='0fc2')(x)
+        x = Dense(256, activation='relu', kernel_initializer='glorot_normal', bias_initializer='zeros', name='0fc0')(x)
+        x = Dense(64, activation='relu', kernel_initializer='glorot_normal', bias_initializer='zeros', name='0fc1')(x)
+        x = Dense(8, activation='relu', kernel_initializer='glorot_normal', bias_initializer='zeros', name='0fc2')(x)
+        b = Dense(1, activation='relu', kernel_initializer='glorot_normal', bias_initializer='zeros', name='0fc3')(x)
         self.model = Model(a, b)
         super().build()
 
@@ -43,7 +44,7 @@ class SmallDenseNet(AbstractNet):
 
     def build(self):
         """
-        constructs a model using 2 conv1D layers and 3 Dense layers
+        constructs a model using 1 Dense layer
         Returns:
             the constructed model
         """
@@ -72,6 +73,7 @@ class WideDenseNet(AbstractNet):
         """
         a = Input(self.input_shape)
         x = Flatten()(a)
+        x = Dense(256, activation='relu', kernel_initializer='glorot_normal', bias_initializer='zeros', name='0fc0')(x)
         x = Dense(64, activation='relu', kernel_initializer='glorot_normal', bias_initializer='zeros', name='0fc0')(x)
         b = Dense(1, activation='relu', kernel_initializer='glorot_normal', bias_initializer='zeros', name='0fc2')(x)
         self.model = Model(a, b)
@@ -96,6 +98,10 @@ class DeepDenseNet(AbstractNet):
         """
         a = Input(self.input_shape)
         x = Flatten()(a)
+        x = Dense(128, activation='relu', kernel_initializer='glorot_normal', bias_initializer='zeros', name='3fc0')(x)
+        x = Dense(64, activation='relu', kernel_initializer='glorot_normal', bias_initializer='zeros', name='3fc0')(x)
+        x = Dense(32, activation='relu', kernel_initializer='glorot_normal', bias_initializer='zeros', name='3fc0')(x)
+        x = Dense(16, activation='relu', kernel_initializer='glorot_normal', bias_initializer='zeros', name='3fc0')(x)
         x = Dense(8, activation='relu', kernel_initializer='glorot_normal', bias_initializer='zeros', name='3fc0')(x)
         x = Dense(4, activation='relu', kernel_initializer='glorot_normal', bias_initializer='zeros', name='3fc1')(x)
         x = Dense(2, activation='relu', kernel_initializer='glorot_normal', bias_initializer='zeros', name='3fc2')(x)

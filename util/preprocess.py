@@ -72,7 +72,6 @@ def preprocess(path, electrode_list, frequency_component):
 
         # standardize the coherence spectra
         coherence_spectra = (coherence_spectra - np.mean(coherence_spectra)) / np.std(coherence_spectra)
-    print(coherence_spectra.shape)
     return coherence_spectra, comprehension_scores
 
 

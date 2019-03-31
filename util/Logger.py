@@ -7,6 +7,7 @@ import time
 import numpy as np
 from keras.utils import print_summary, plot_model
 
+from util.visualize import plot_history, plot_predictions
 from config import DATA_SET_DIR, BATCH_SIZE, EPOCHS, LEARNING_RATE
 
 
@@ -36,7 +37,7 @@ class Logger(object):
             with open(self.output_file, "a+") as out_file:
                 out_file.write(string + "\n")
 
-    def log_model(self, score, model):
+    def log_model(self, score, model, history, y, predictions):
         """
         Logs the performance and architecture of a model
         Args:
@@ -45,6 +46,7 @@ class Logger(object):
         """
         model_number = np.fromfile(os.sep.join([self.output_dir, "model_number.txt"]), dtype=int)
         model_file_name = self.net_type + "-" + str(model_number[0] - 1)
+        out = os.sep.join([self.output_dir, model_file_name])
 
         self.log("=========================================Start of Log==============================================")
         self.log("Trained model " + model_file_name + ".json")
@@ -61,4 +63,6 @@ class Logger(object):
         self.log("=========================================End of Log=================================================")
         self.log("====================================================================================================")
         self.log("----------------------------------------------------------------------------------------------------")
-        plot_model(model, show_shapes=True, to_file=os.sep.join([self.output_dir, model_file_name + ".png"]))
+        plot_model(model, show_shapes=True, to_file=out + "-model.png")
+        plot_history(history, out + "-history.png")
+        plot_predictions(y, predictions, out + "-predictions.png")
