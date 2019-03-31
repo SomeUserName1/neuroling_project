@@ -1,0 +1,53 @@
+2019-03-31 21:50:24,258 - deprecation.py - From C:\Anaconda3\envs\neuroling_project\lib\site-packages\tensorflow\python\framework\op_def_library.py:263: colocate_with (from tensorflow.python.framework.ops) is deprecated and will be removed in a future version.
+Instructions for updating:
+Colocations handled automatically by placer.
+2019-03-31 21:50:28,101 - deprecation.py - From C:\Anaconda3\envs\neuroling_project\lib\site-packages\tensorflow\python\ops\math_ops.py:3066: to_int32 (from tensorflow.python.ops.math_ops) is deprecated and will be removed in a future version.
+Instructions for updating:
+Use tf.cast instead.
+2019-03-31 21:50:46,520 - _base.py - update_title_pos
+2019-03-31 21:50:46,530 - font_manager.py - findfont: Matching :family=sans-serif:style=normal:variant=normal:weight=normal:stretch=normal:size=10.0 to DejaVu Sans ('C:\\Anaconda3\\envs\\neuroling_project\\lib\\site-packages\\matplotlib\\mpl-data\\fonts\\ttf\\DejaVuSans.ttf') with score of 0.050000.
+2019-03-31 21:50:46,557 - _base.py - update_title_pos
+2019-03-31 21:50:46,603 - _base.py - update_title_pos
+2019-03-31 21:50:46,623 - _base.py - update_title_pos
+2019-03-31 21:50:46,644 - _base.py - update_title_pos
+2019-03-31 21:50:46,659 - _base.py - update_title_pos
+2019-03-31 21:50:46,698 - _base.py - update_title_pos
+2019-03-31 21:50:46,713 - _base.py - update_title_pos
+2019-03-31 21:51:11,062 - _base.py - update_title_pos
+2019-03-31 21:51:11,091 - _base.py - update_title_pos
+2019-03-31 21:51:11,133 - _base.py - update_title_pos
+2019-03-31 21:51:11,149 - _base.py - update_title_pos
+2019-03-31 21:51:11,169 - _base.py - update_title_pos
+2019-03-31 21:51:11,187 - _base.py - update_title_pos
+2019-03-31 21:51:11,228 - _base.py - update_title_pos
+2019-03-31 21:51:11,244 - _base.py - update_title_pos
+2019-03-31 21:51:26,873 - _base.py - update_title_pos
+2019-03-31 21:51:26,896 - _base.py - update_title_pos
+2019-03-31 21:51:26,934 - _base.py - update_title_pos
+2019-03-31 21:51:26,948 - _base.py - update_title_pos
+2019-03-31 21:51:26,965 - _base.py - update_title_pos
+2019-03-31 21:51:26,979 - _base.py - update_title_pos
+2019-03-31 21:51:27,013 - _base.py - update_title_pos
+2019-03-31 21:51:27,027 - _base.py - update_title_pos
+2019-03-31 21:51:57,034 - _base.py - update_title_pos
+2019-03-31 21:51:57,062 - _base.py - update_title_pos
+2019-03-31 21:51:57,103 - _base.py - update_title_pos
+2019-03-31 21:51:57,119 - _base.py - update_title_pos
+2019-03-31 21:51:57,139 - _base.py - update_title_pos
+2019-03-31 21:51:57,155 - _base.py - update_title_pos
+2019-03-31 21:51:57,192 - _base.py - update_title_pos
+2019-03-31 21:51:57,208 - _base.py - update_title_pos
+2019-03-31 22:03:09,376 - _base.py - update_title_pos
+2019-03-31 22:03:09,401 - _base.py - update_title_pos
+2019-03-31 22:03:09,428 - _base.py - update_title_pos
+2019-03-31 22:03:09,451 - _base.py - update_title_pos
+2019-03-31 22:03:09,479 - _base.py - update_title_pos
+2019-03-31 22:03:09,496 - _base.py - update_title_pos
+2019-03-31 22:03:09,513 - _base.py - update_title_pos
+2019-03-31 22:03:09,533 - _base.py - update_title_pos
+2019-03-31 22:03:09,578 - _base.py - update_title_pos
+2019-03-31 22:03:09,599 - _base.py - update_title_pos
+2019-03-31 22:03:09,621 - _base.py - update_title_pos
+2019-03-31 22:03:09,639 - _base.py - update_title_pos
+2019-03-31 22:03:09,656 - _base.py - update_title_pos
+2019-03-31 22:03:09,676 - _base.py - update_title_pos

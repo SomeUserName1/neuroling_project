@@ -23,8 +23,9 @@ FREQUENCY = 10
 
 
 # Training & Testing Setup
-VERBOSE = True
-SEARCH_TIME = 30 * 60  # in s
-LEARNING_RATE = 2e-2
-BATCH_SIZE = 64  # Batch sized used for training.
-EPOCHS = 100
+VERBOSE = True  # how much to print
+SEARCH_TIME = 10 * 60  # in s
+LEARNING_RATE = 2e-2    # best practice: sth between 1e-1 and 1e-6
+BATCH_SIZE = 128  # Batch sized used for training, i.e. how many images per batch
+EPOCHS = 10000      # how many times to look at the data set. Normally sth. between 10 and 100. Early stopping is
+# implemented so only a fraction of the value here is executed

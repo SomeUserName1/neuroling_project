@@ -4,6 +4,7 @@ from autokeras.utils import pickle_from_file
 from graphviz import Digraph
 import pandas as pd
 import matplotlib.pyplot as plt
+import numpy as np
 
 
 def to_pdf(graph, path):
@@ -39,7 +40,7 @@ def visualize(path):
         to_pdf(graph, os.path.join(path, str(model_id)))
 
 
-def plot_history(out_dir, history):
+def plot_history(history,out_dir):
     """
         Plots the training loss and metrics of a trained classifier suring training
     Args:
@@ -48,24 +49,26 @@ def plot_history(out_dir, history):
     hist = pd.DataFrame(history.history)
     hist['epoch'] = history.epoch
 
+    plt.clf()
     plt.figure()
+    plt.subplot(211)
     plt.xlabel('Epoch')
     plt.ylabel('Mean Abs Error ')
     plt.plot(hist['epoch'], hist['mean_absolute_error'],
              label='Train Error')
     plt.plot(hist['epoch'], hist['val_mean_absolute_error'],
              label='Val Error')
-    plt.ylim([0, 5])
+    plt.ylim(0, 1)
     plt.legend()
 
-    plt.figure()
+    plt.subplot(212)
     plt.xlabel('Epoch')
     plt.ylabel('Mean Square Error ')
     plt.plot(hist['epoch'], hist['mean_squared_error'],
              label='Train Error')
     plt.plot(hist['epoch'], hist['val_mean_squared_error'],
              label='Val Error')
-    plt.ylim([0, 20])
+    plt.ylim(0, 1)
     plt.legend()
     plt.savefig(out_dir)
 
@@ -77,13 +80,13 @@ def plot_predictions(test_labels, test_predictions, out_dir):
         test_labels: true labels
         test_predictions: values predicted by the regressor
     """
-
+    plt.clf()
+    plt.figure()
     plt.scatter(test_labels, test_predictions)
     plt.xlabel('True Values')
     plt.ylabel('Predictions')
-    plt.axis('equal')
-    plt.axis('square')
-    plt.xlim([0, plt.xlim()[1]])
-    plt.ylim([0, plt.ylim()[1]])
-    plt.plot([-1, 2], [-1, 2])
+    x = np.linspace(0, 1, 100)
+    plt.plot(x, x + 0, linestyle='-.')
+    plt.ylim(0, 1)
+
     plt.savefig(out_dir)
